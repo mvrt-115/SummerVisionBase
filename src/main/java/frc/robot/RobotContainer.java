@@ -13,6 +13,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.AlignUsingAprilTag;
+import frc.robot.subsystems.VisionSubsystem;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.Localization;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -21,6 +30,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+
+  private final VisionSubsystem visionSubsystem = new VisionSubsystem();
+  private final Localization localization = new Localization(visionSubsystem);
+
+  private final Joystick joystick = new Joystick(0);
+  private final Command alignToAprilTagCommand = new AlignUsingAprilTag(localization);
+
 
   private final CommandXboxController driveJoystick = new CommandXboxController(0);
   
@@ -59,7 +75,12 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(drivetrain.applyRequest(() -> drivetrain.getSwerveCommand()));
 
     //Drivetrain logging
-    drivetrain.registerTelemetry(logger::telemeterize); 
+    drivetrain.registerTelemetry(logger::telemeterize);
+    
+    
+    
+    //add smth
+    new JoystickButton(joystick, 1).whileHeld(alignToAprilTagCommand);
   }
 
   /**

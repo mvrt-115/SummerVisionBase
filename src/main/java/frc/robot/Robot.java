@@ -4,9 +4,19 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.TimedRobot;
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.Localization;
+import frc.robot.subsystems.VisionSubsystem;
+import edu.wpi.first.math.geometry.Pose2d;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -14,10 +24,12 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
-public class Robot extends TimedRobot {
-  private Command m_autonomousCommand;
+public class Robot extends LoggedRobot {
 
+  private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
+  private VisionSubsystem visionSubsystem;
+  private Localization localization;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -25,10 +37,25 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
-    // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-  }
+    visionSubsystem = new VisionSubsystem();
+    localization = new Localization(visionSubsystem);
+
+    Logger.recordMetadata("ProjectName", "MyProject");
+
+    if (isReal()) {
+        Logger.addDataReceiver(new WPILOGWriter());
+        Logger.addDataReceiver(new NT4Publisher());
+        new PowerDistribution(1, ModuleType.kRev);
+    } else {
+        setUseTiming(false);
+        String logPath = LogFileUtil.findReplayLog();
+        Logger.setReplaySource(new WPILOGReader(logPath));
+        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+    }
+
+    Logger.start();
+}
 
   /**
    * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
@@ -44,6 +71,11 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+    Pose2d robotPose = localization.getRobotPose();
+    if (robotPose != null) {
+        Logger.getInstance().recordOutput("Robot Pose", robotPose.toString());
+    }
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
