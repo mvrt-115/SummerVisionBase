@@ -35,7 +35,7 @@ public class RobotContainer {
   private final Localization localization = new Localization(visionSubsystem);
 
   private final Joystick joystick = new Joystick(0);
-  private final Command alignToAprilTagCommand = new AlignUsingAprilTag(localization);
+  private final Command alignUsingAprilTagCommand = new AlignUsingAprilTag(localization);
 
 
   private final CommandXboxController driveJoystick = new CommandXboxController(0);
@@ -80,7 +80,7 @@ public class RobotContainer {
     
     
     //add smth
-    new JoystickButton(joystick, 1).whileHeld(alignToAprilTagCommand);
+    new JoystickButton(joystick, 1).onTrue(alignUsingAprilTagCommand);
   }
 
   /**

@@ -4,17 +4,26 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import org.photonvision.PhotonUtils;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 
 public class Localization {
     private final VisionSubsystem visionSubsystem;
 
-    //use actual coordinates from apriltag library/normal java hashmap or cad
-    private static final Pose2d[] APRILTAG_POSES = new Pose2d[] {
-        new Pose2d(new Translation2d(0, 0), new Rotation2d(0)),
-        //more pose2d
+    //use actual coordinates from AprilTag library/normal Java hashmap or CAD
+    private static final Pose3d[] APRILTAG_POSES = new Pose3d[] {
+        new Pose3d(new Translation3d(0, 0, 0), new Rotation3d(0, 0, 0)),
+        //more poses
     };
+
+    private static final Transform3d cameraToRobot = new Transform3d(
+        new Translation3d(4 * 0.0254, 11 * 0.0254, 13 * 0.0254),
+        new Rotation3d(0, 0, Math.PI)
+    );
 
     public Localization(VisionSubsystem visionSubsystem) {
         this.visionSubsystem = visionSubsystem;
@@ -26,8 +35,13 @@ public class Localization {
             PhotonTrackedTarget target = result.getBestTarget();
             int fiducialId = target.getFiducialId();
             if (fiducialId >= 0 && fiducialId < APRILTAG_POSES.length) {
-                Pose2d tagPose = APRILTAG_POSES[fiducialId];
-                return PhotonUtils.estimateFieldToRobotAprilTag(tagPose, target.getBestCameraToTarget());
+                Pose3d tagPose = APRILTAG_POSES[fiducialId];
+                Transform3d cameraToTarget = target.getBestCameraToTarget();
+                Pose3d robotPose3d = PhotonUtils.estimateFieldToRobotAprilTag(cameraToTarget, tagPose, cameraToRobot);
+                return new Pose2d(
+                    robotPose3d.getTranslation().toTranslation2d(),
+                    new Rotation2d(robotPose3d.getRotation().getZ())
+                );
             }
         }
         return null;
