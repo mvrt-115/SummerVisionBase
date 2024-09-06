@@ -9,7 +9,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     public VisionSubsystem() {
         //check name
-        camera = new PhotonCamera("photonvision");
+        camera = new PhotonCamera("beholder");
     }
 
     public PhotonPipelineResult getLatestResult() {
