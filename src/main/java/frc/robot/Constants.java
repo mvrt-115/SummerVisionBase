@@ -8,6 +8,9 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.ClosedLoopOutputType;
 
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
@@ -164,5 +167,24 @@ public final class Constants {
               kBackLeftSteerMotorId, kBackLeftDriveMotorId, kBackLeftEncoderId, kBackLeftEncoderOffset, Units.inchesToMeters(kBackLeftXPosInches), Units.inchesToMeters(kBackLeftYPosInches), kInvertLeftSide);
       public static final SwerveModuleConstants BackRight = ConstantCreator.createModuleConstants(
               kBackRightSteerMotorId, kBackRightDriveMotorId, kBackRightEncoderId, kBackRightEncoderOffset, Units.inchesToMeters(kBackRightXPosInches), Units.inchesToMeters(kBackRightYPosInches), kInvertRightSide);  
+  }
+
+  public static class CameraConstants {
+        // placeholder robot/camera location values
+        public static double cameraHeight = Units.inchesToMeters(24);
+        public static double targetHeight = Units.inchesToMeters(5);
+        public static double cameraPitch = Units.degreesToRadians(0);
+        public static double goalMargin = Units.feetToMeters(2); // desired distance from goal
+
+        // distance of camera from robot
+        public static Transform3d robotToCamera = new Transform3d(new Translation3d(4 * 0.0254, 11 * 0.0254, 13 * 0.0254), new Rotation3d(0, 0, Math.PI));
+
+        // placeholder PID values
+
+        public final static double LINEAR_P = 0.0;
+        public final static double LINEAR_D = 0.0;
+
+        public final static double ANGULAR_P = 0.0;
+        public final static double ANGULAR_D = 0.0;
   }
 }
