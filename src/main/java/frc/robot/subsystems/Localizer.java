@@ -4,13 +4,23 @@
 
 package frc.robot.subsystems;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -26,6 +36,9 @@ public class Localizer extends SubsystemBase {
   //Field layout (tag IDs on a map)
   private AprilTagFieldLayout fieldLayout;
 
+  //"Field" for logging
+  private Field2d field;
+
   /** Creates a new Localizer. */
   public Localizer(Swerve swerve) {
     this.camera = new PhotonCamera(Constants.VisionConstants.cameraName);
@@ -40,5 +53,22 @@ public class Localizer extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    var result = camera.getLatestResult();
+    
+    //Estimated position based on vision (camera) alone
+    Optional<EstimatedRobotPose> estimatedPoseVision = cameraEstimator.update();
+
+    //Estimated position based on swerve kinematics
+    poseEstimator.updateWithTime(Timer.getFPGATimestamp(), new Rotation2d(swerve.getYaw()), swerve.getSwerveModulePositions());
+
+    //Add vision measurement to poseEstimator (combining vision & swerve)
+    //Uses position (pose2d), and timestamp of snapshot taken
+    poseEstimator.addVisionMeasurement(estimatedPoseVision.get().estimatedPose.toPose2d(), estimatedPoseVision.get().timestampSeconds);
+
+    Pose2d estimatedPos = poseEstimator.getEstimatedPosition();
+    
+    //Log this estimated position
+    field.setRobotPose(estimatedPos);
+    SmartDashboard.putData("Field", field); //Switch to advantagekit later
   }
 }

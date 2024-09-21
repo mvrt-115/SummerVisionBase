@@ -26,6 +26,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -86,12 +87,20 @@ public class Swerve extends SwerveDrivetrain implements Subsystem {
         setupModules();
     }
     
-    /*
+    /**
      * For Vision: Swerve Pose Estimator
      * @return the swerve pose estimator (made by Phoenix6)
      */
     public SwerveDrivePoseEstimator getPoseEstimator(){
         return m_odometry;
+    }
+
+    /**
+     * For Vision: Swerve Module Positions
+     * @return the swerve drive's module positions (used when updating estimated pose)
+     */
+    public SwerveModulePosition[] getSwerveModulePositions(){
+        return m_modulePositions;
     }
 
     public void setupModules(){
