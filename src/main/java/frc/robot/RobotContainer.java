@@ -4,9 +4,7 @@
 
 package frc.robot;
 
-import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.Localizer;
 import frc.robot.subsystems.Swerve;
 import frc.robot.utils.Telemetry;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -33,10 +31,14 @@ public class RobotContainer {
 
   private final Telemetry logger = new Telemetry(drivetrain.MaxSpeed);
 
+  //Vision localizer
+  Localizer localizer;
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
+    localizer = new Localizer(drivetrain);
   }
 
   /**
