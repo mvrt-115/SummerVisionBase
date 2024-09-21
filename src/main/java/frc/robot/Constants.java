@@ -46,8 +46,9 @@ public final class Constants {
         public static final String cameraName = "monocle";
 
         //Position of camera relative to robot center (meters, radians)
-        public static final Transform3d camToRobot = new Transform3d(new Translation3d(0, 0, 0), new Rotation3d(0, 0, 0));// new Transform3d(new
+        public static final Transform3d camToRobot = new Transform3d(new Translation3d(0, 0, 0), new Rotation3d(0, 0, 0));
                 
+        
   }
 
   public static class SwerveConstants {
