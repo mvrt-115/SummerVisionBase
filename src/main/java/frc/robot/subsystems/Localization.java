@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Localization {
     private final VisionSubsystem visionSubsystem;
@@ -38,10 +39,17 @@ public class Localization {
                 Pose3d tagPose = APRILTAG_POSES[fiducialId];
                 Transform3d cameraToTarget = target.getBestCameraToTarget();
                 Pose3d robotPose3d = PhotonUtils.estimateFieldToRobotAprilTag(cameraToTarget, tagPose, cameraToRobot);
-                return new Pose2d(
-                    robotPose3d.getTranslation().toTranslation2d(),
-                    new Rotation2d(robotPose3d.getRotation().getZ())
-                );
+                
+                Pose2d robotPose2d = new Pose2d(
+                robotPose3d.getTranslation().toTranslation2d(),
+                new Rotation2d(robotPose3d.getRotation().getZ())
+            );
+
+            SmartDashboard.putNumber("Robot X (meters)", robotPose2d.getX());
+            SmartDashboard.putNumber("Robot Y (meters)", robotPose2d.getY());
+            SmartDashboard.putNumber("Robot Heading (radians)", robotPose2d.getRotation().getRadians());
+
+            return robotPose2d;
             }
         }
         return null;
