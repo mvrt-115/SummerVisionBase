@@ -33,16 +33,22 @@ import frc.robot.Constants;
 public class Localization extends SubsystemBase {
   /** Creates a new Localization. */
 
-  // initialize camera
+  /* Create a camera */
   private PhotonCamera camera = new PhotonCamera("photonvision");
   
-  // pid vars for moving to target ?
-  private PIDController turnController = new PIDController(Constants.CameraConstants.ANGULAR_P, 0, Constants.CameraConstants.ANGULAR_D);
-  private PIDController forwardController = new PIDController(Constants.CameraConstants.LINEAR_P, 0, Constants.CameraConstants.LINEAR_D);
+  /* Temporary PID things for moving toward a target */ 
+  private PIDController turnController = 
+      new PIDController(Constants.CameraConstants.ANGULAR_P, 0, Constants.CameraConstants.ANGULAR_D);
+  private PIDController forwardController = 
+      new PIDController(Constants.CameraConstants.LINEAR_P, 0, Constants.CameraConstants.LINEAR_D);
 
-  // for april tags
+  /* April tag information */
   AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
-  PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.CameraConstants.robotToCamera);
+
+  PhotonPoseEstimator photonPoseEstimator = 
+      new PhotonPoseEstimator(aprilTagFieldLayout, 
+                              PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, 
+                              Constants.CameraConstants.robotToCamera);
   final Pose3d[] APRILTAG_POSITIONS = new Pose3d[] {
     new Pose3d(new Translation3d(0, 0, 0), new Rotation3d(0, 0, 0)),
     // other apriltag positions
@@ -76,12 +82,9 @@ public class Localization extends SubsystemBase {
       rotationSpeed = 0;
       moveSpeed = 0;
     }
-
-
   }
 
-  public Transform3d getCameraTransformToTarget() {
-    
+  public Transform3d getCameraTransformToBestTarget() {
     var result = camera.getLatestResult();
     if  (result.hasTargets()) {
       var target = result.getBestTarget();
@@ -89,9 +92,7 @@ public class Localization extends SubsystemBase {
       Transform3d cameraToTarget = target.getBestCameraToTarget();
       return cameraToTarget;
     }
-    
     return null;
-
   }
 
   public Transform2d getRobotToTarget() {
@@ -99,6 +100,7 @@ public class Localization extends SubsystemBase {
     return null;
   }
 
+  // have to update this to DifferentialDrivePoseEstimator using addVisionMeasurement()
   public Optional<EstimatedRobotPose> getEstimatedMultitagFieldPosition() {
     return photonPoseEstimator.update();
   }
