@@ -62,6 +62,8 @@ public class RobotContainer {
 
     //Drivetrain logging
     drivetrain.registerTelemetry(logger::telemeterize); 
+
+    
   }
 
   /**

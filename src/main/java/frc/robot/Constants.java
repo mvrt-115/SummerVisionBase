@@ -43,7 +43,7 @@ public final class Constants {
 
   public static class VisionConstants {
         //Camera name
-        public static final String cameraName = "monocle";
+        public static final String cameraName = "lifecam";
 
         //Position of camera relative to robot center (meters, radians)
         public static final Transform3d camToRobot = new Transform3d(new Translation3d(0, 0, 0), new Rotation3d(0, 0, 0));

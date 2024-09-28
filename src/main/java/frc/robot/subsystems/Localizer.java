@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
@@ -39,12 +40,16 @@ public class Localizer extends SubsystemBase {
   //"Field" for logging
   private Field2d field;
 
+  private double count;
+
   /** Creates a new Localizer. */
   public Localizer(Swerve swerve) {
     this.camera = new PhotonCamera(Constants.VisionConstants.cameraName);
     this.fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
     
-    this.cameraEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.VisionConstants.camToRobot);
+    this.field = new Field2d();
+
+    this.cameraEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, camera, Constants.VisionConstants.camToRobot);
 
     this.swerve = swerve;
     this.poseEstimator = swerve.getPoseEstimator();
@@ -52,23 +57,38 @@ public class Localizer extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-    var result = camera.getLatestResult();
-    
-    //Estimated position based on vision (camera) alone
-    Optional<EstimatedRobotPose> estimatedPoseVision = cameraEstimator.update();
 
-    //Estimated position based on swerve kinematics
-    poseEstimator.updateWithTime(Timer.getFPGATimestamp(), new Rotation2d(swerve.getYaw()), swerve.getSwerveModulePositions());
+    System.out.println("in periodic!!");
 
-    //Add vision measurement to poseEstimator (combining vision & swerve)
-    //Uses position (pose2d), and timestamp of snapshot taken
-    poseEstimator.addVisionMeasurement(estimatedPoseVision.get().estimatedPose.toPose2d(), estimatedPoseVision.get().timestampSeconds);
+      // This method will be called once per scheduler run
+      var result = camera.getLatestResult();
 
-    Pose2d estimatedPos = poseEstimator.getEstimatedPosition();
-    
-    //Log this estimated position
-    field.setRobotPose(estimatedPos);
-    SmartDashboard.putData("Field", field); //Switch to advantagekit later
+      //Estimated position based on vision (camera) alone
+      Optional<EstimatedRobotPose> estimatedPoseVision = cameraEstimator.update();
+
+      //Estimated position based on swerve kinematics
+      Rotation2d rot = new Rotation2d(swerve.getYaw());
+      if (rot != null && swerve.getSwerveModulePositions() != null){
+        poseEstimator.updateWithTime(Timer.getFPGATimestamp(), rot, swerve.getSwerveModulePositions());
+      }
+      
+      //Add vision measurement to poseEstimator (combining vision & swerve)
+      //Uses position (pose2d), and timestamp of snapshot taken
+      System.out.println(result.getTargets().size());
+      count += 0.000001;
+      SmartDashboard.putNumber("Vision - Value", count);
+      if(result.getTargets().size()>0){
+        SmartDashboard.putBoolean("Vision - Has Targets", true);
+        poseEstimator.addVisionMeasurement(estimatedPoseVision.get().estimatedPose.toPose2d(), estimatedPoseVision.get().timestampSeconds);
+      
+      } else {
+        SmartDashboard.putBoolean("Vision - Has Targets", false);
+      }
+
+      Pose2d estimatedPos = poseEstimator.getEstimatedPosition();
+      
+      //Log this estimated position
+      field.setRobotPose(estimatedPos);
+      SmartDashboard.putData("Vision - Field", field); //Switch to advantagekit later
   }
 }
