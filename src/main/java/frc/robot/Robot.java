@@ -66,16 +66,7 @@ public class Robot extends LoggedRobot {
    * SmartDashboard integrated updating.
    */
   @Override
-  public void robotPeriodic() {
-    CommandScheduler.getInstance().run();
-    
-    Pose2d robotPose = localization.getRobotPose();
-    if (robotPose != null) {
-      SmartDashboard.putString("Robot Pose", robotPose.toString());
-    } else {
-      SmartDashboard.putString("Robot Pose", "No targets detected");
-    }
-  }
+  public void robotPeriodic() {}
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
