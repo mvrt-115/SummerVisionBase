@@ -19,6 +19,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -39,8 +40,7 @@ public class Localizer extends SubsystemBase {
 
   //"Field" for logging
   private Field2d field;
-
-  private double count;
+  private double lastTime;
 
   /** Creates a new Localizer. */
   public Localizer(Swerve swerve) {
@@ -53,12 +53,18 @@ public class Localizer extends SubsystemBase {
 
     this.swerve = swerve;
     this.poseEstimator = swerve.getPoseEstimator();
+
+    lastTime = Timer.getFPGATimestamp();
   }
 
   @Override
   public void periodic() {
 
-    System.out.println("in periodic!!");
+      //Logs every 3s
+      if (Timer.getFPGATimestamp() >= lastTime + 1){
+        SmartDashboard.putNumber("Pingu - Time", lastTime);
+        lastTime = Timer.getFPGATimestamp();
+      }
 
       // This method will be called once per scheduler run
       var result = camera.getLatestResult();
@@ -68,27 +74,24 @@ public class Localizer extends SubsystemBase {
 
       //Estimated position based on swerve kinematics
       Rotation2d rot = new Rotation2d(swerve.getYaw());
-      if (rot != null && swerve.getSwerveModulePositions() != null){
-        poseEstimator.updateWithTime(Timer.getFPGATimestamp(), rot, swerve.getSwerveModulePositions());
+      SwerveModulePosition[] module_pos = swerve.getSwerveModulePositions();
+      if (rot != null && module_pos != null){
+        poseEstimator.updateWithTime(Timer.getFPGATimestamp(), rot, module_pos);
       }
       
-      //Add vision measurement to poseEstimator (combining vision & swerve)
-      //Uses position (pose2d), and timestamp of snapshot taken
-      System.out.println(result.getTargets().size());
-      count += 0.000001;
-      SmartDashboard.putNumber("Vision - Value", count);
-      if(result.getTargets().size()>0){
-        SmartDashboard.putBoolean("Vision - Has Targets", true);
+      //Update estimated position with addition of vision
+      if(result.getTargets().size()>0 && estimatedPoseVision.isPresent()){
+        SmartDashboard.putBoolean("Pingu - Has Targets", true);
         poseEstimator.addVisionMeasurement(estimatedPoseVision.get().estimatedPose.toPose2d(), estimatedPoseVision.get().timestampSeconds);
       
       } else {
-        SmartDashboard.putBoolean("Vision - Has Targets", false);
+        SmartDashboard.putBoolean("Pingu - Has Targets", false);
       }
 
       Pose2d estimatedPos = poseEstimator.getEstimatedPosition();
       
       //Log this estimated position
       field.setRobotPose(estimatedPos);
-      SmartDashboard.putData("Vision - Field", field); //Switch to advantagekit later
+      SmartDashboard.putData("Pingu - Field", field); //Switch to advantagekit later
   }
 }
