@@ -4,8 +4,6 @@
 
 package frc.robot.commands;
 
-import java.sql.Time;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.util.datalog.DataLog;
@@ -42,17 +40,18 @@ public class GetFieldCoordinates extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Pose2d currentPose = localization.getFieldPosition();
+    //Pose2d currentPose = localization.getFieldPosition();
     Transform3d poseToNearestTarget = localization.getCameraTransformToBestTarget();
     
     // logging pose to smart dashboard every once in a while yay yay yippee
     if (Timer.getFPGATimestamp() - lastLoggedTime >= DEBUG_INTERVAL) {
       // translating the pose to an array of doubles with x, y, and rotation so it can be logged
-      double[] poseArray = {currentPose.getX(), currentPose.getY(), currentPose.getRotation().getDegrees()};
-      SmartDashboard.putNumberArray("position at " + Timer.getFPGATimestamp(), poseArray);
+      //double[] poseArray = {currentPose.getX(), currentPose.getY(), currentPose.getRotation().getDegrees()};
+      //SmartDashboard.putNumberArray("position at " + Timer.getFPGATimestamp(), poseArray);
       // translating the x, y, z from the transform3d distance from the target to be logged
       double[] distanceArray = {poseToNearestTarget.getX(), poseToNearestTarget.getY(), poseToNearestTarget.getZ()};
-      SmartDashboard.putNumberArray("distance to target " + Timer.getFPGATimestamp(), distanceArray);
+      SmartDashboard.putNumberArray("transform to target at " + Timer.getFPGATimestamp(), distanceArray);
+      //SmartDashboard.putNumber("target id", localization.getBestTargetId());
 
       lastLoggedTime = Timer.getFPGATimestamp();
     }

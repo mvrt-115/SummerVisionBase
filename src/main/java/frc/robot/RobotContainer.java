@@ -4,14 +4,11 @@
 
 package frc.robot;
 
-import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.GetFieldCoordinates;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Localization;
 import frc.robot.subsystems.Swerve;
 import frc.robot.utils.Telemetry;
-import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -27,7 +24,7 @@ public class RobotContainer {
 
   private final CommandXboxController driveJoystick = new CommandXboxController(0);
   
-  private final Localization localization = new Localization(); 
+  
   
 
   public final Swerve drivetrain = new Swerve(driveJoystick,
@@ -36,6 +33,8 @@ public class RobotContainer {
                                               Constants.SwerveConstants.FrontRight, 
                                               Constants.SwerveConstants.BackLeft, 
                                               Constants.SwerveConstants.BackRight);
+
+  private final Localization localization = new Localization(drivetrain); 
 
   private final Telemetry logger = new Telemetry(drivetrain.MaxSpeed);
 
