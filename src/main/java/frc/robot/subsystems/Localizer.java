@@ -14,10 +14,12 @@ import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Timer;
@@ -93,5 +95,27 @@ public class Localizer extends SubsystemBase {
       //Log this estimated position
       field.setRobotPose(estimatedPos);
       SmartDashboard.putData("Pingu - Field", field); //Switch to advantagekit later
+  }
+
+  /**
+   * @return current pose according to pose estimator
+   */
+  public Pose2d getCurrentPose(){
+    return poseEstimator.getEstimatedPosition();
+  }
+
+  /**
+   * @return field layout (for Align command)
+   */
+  public AprilTagFieldLayout getFieldLayout(){
+    return fieldLayout;
+  }
+
+  /**
+   * @return location to use for alignment
+   */
+  public Pose2d getAlignLoc(){
+    Optional<Pose3d> tagPose = fieldLayout.getTagPose(4); //ID 4 for red speaker, ID 7 for blue speaker
+    return tagPose.get().toPose2d();
   }
 }

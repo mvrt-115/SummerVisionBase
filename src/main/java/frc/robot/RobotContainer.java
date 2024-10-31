@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.commands.Align;
 import frc.robot.subsystems.Localizer;
 import frc.robot.subsystems.Swerve;
 import frc.robot.utils.Telemetry;
@@ -54,6 +55,8 @@ public class RobotContainer {
     //Reset Gyro
     driveJoystick.y().onTrue((new InstantCommand(() -> drivetrain.resetGyro())));
     
+    driveJoystick.a().onTrue(new Align(drivetrain, localizer, localizer::getAlignLoc));
+
     //Toggles between field and robot oriented
     driveJoystick.start().onTrue(new InstantCommand(() -> drivetrain.isFieldOriented = (!drivetrain.isFieldOriented)));
     
@@ -61,9 +64,7 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(drivetrain.applyRequest(() -> drivetrain.getSwerveCommand()));
 
     //Drivetrain logging
-    drivetrain.registerTelemetry(logger::telemeterize); 
-
-    
+    drivetrain.registerTelemetry(logger::telemeterize);
   }
 
   /**
