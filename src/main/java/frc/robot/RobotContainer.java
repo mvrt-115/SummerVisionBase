@@ -38,8 +38,8 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
-    configureBindings();
     localizer = new Localizer(drivetrain);
+    configureBindings();
   }
 
   /**
@@ -55,7 +55,7 @@ public class RobotContainer {
     //Reset Gyro
     driveJoystick.y().onTrue((new InstantCommand(() -> drivetrain.resetGyro())));
     
-    driveJoystick.a().onTrue(new Align(drivetrain, localizer, localizer::getAlignLoc));
+    //driveJoystick.a().onTrue(new Align(drivetrain, localizer, localizer::getAlignLoc));
 
     //Toggles between field and robot oriented
     driveJoystick.start().onTrue(new InstantCommand(() -> drivetrain.isFieldOriented = (!drivetrain.isFieldOriented)));
