@@ -11,6 +11,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.Localizer;
@@ -62,6 +63,10 @@ public class Align extends Command {
     double outY = pidY.calculate(robotPose.getY(), targetPose.getY());
     
     ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(outX, outY, 0, new Rotation2d(-theta));
+
+    SwerveModuleState[] states = swerve.getKinematics().toSwerveModuleStates(speeds);
+    var new_states = swerve.getKinematics().toSwerveModuleStates(speeds);
+    swerve.setModuleStates(states);
   }
 
   // Called once the command ends or is interrupted.

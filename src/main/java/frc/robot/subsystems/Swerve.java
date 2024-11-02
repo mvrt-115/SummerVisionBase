@@ -26,7 +26,9 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -101,6 +103,26 @@ public class Swerve extends SwerveDrivetrain implements Subsystem {
      */
     public SwerveModulePosition[] getSwerveModulePositions(){
         return m_modulePositions;
+    }
+
+    public SwerveModuleState[] getSwerveModuleStates(){
+        return m_moduleStates;
+    }
+
+    /**
+     * For Vision: Swerve Kinematics
+     * @return 
+     */
+    public SwerveDriveKinematics getKinematics(){
+        return m_kinematics;
+    }
+
+    public void setModuleStates(SwerveModuleState[] states){
+        SwerveModuleState[] module_states = getSwerveModuleStates();
+
+        for (int n = 0; n < states.length; n++){
+            module_states[n] = states[n];
+;        }
     }
 
     public void setupModules(){
