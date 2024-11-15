@@ -4,17 +4,13 @@
 
 package frc.robot.subsystems;
 
-import java.util.List; 
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-import org.photonvision.targeting.PhotonTrackedTarget;
 
-import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -78,7 +74,7 @@ public class Localizer extends SubsystemBase {
       Rotation2d rot = new Rotation2d(swerve.getYaw());
       SwerveModulePosition[] module_pos = swerve.getSwerveModulePositions();
       if (rot != null && module_pos != null){
-        poseEstimator.updateWithTime(Timer.getFPGATimestamp(), rot, module_pos);
+        poseEstimator.updateWithTime(result.getTimestampSeconds(), rot, module_pos);
       }
       
       //Update estimated position with addition of vision
