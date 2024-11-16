@@ -117,9 +117,13 @@ public class Swerve extends SwerveDrivetrain implements Subsystem {
         return m_kinematics;
     }
 
+
+    /**
+     * For Vision: Set the module states to inputted values (states)
+     * @param states the states to update modules to
+     */
     public void setModuleStates(SwerveModuleState[] states){
         SwerveModuleState[] module_states = getSwerveModuleStates();
-
         for (int n = 0; n < states.length; n++){
             module_states[n] = states[n];
 ;        }

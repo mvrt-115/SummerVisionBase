@@ -55,7 +55,7 @@ public class RobotContainer {
     //Reset Gyro
     driveJoystick.y().onTrue((new InstantCommand(() -> drivetrain.resetGyro())));
     
-    //driveJoystick.a().onTrue(new Align(drivetrain, localizer, localizer::getAlignLoc));
+    driveJoystick.a().onTrue(new Align(drivetrain, localizer, localizer::getAlignLoc));
 
     //Toggles between field and robot oriented
     driveJoystick.start().onTrue(new InstantCommand(() -> drivetrain.isFieldOriented = (!drivetrain.isFieldOriented)));

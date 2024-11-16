@@ -13,15 +13,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
 import frc.robot.subsystems.Localizer;
 import frc.robot.subsystems.Swerve;
 
 public class Align extends Command {
-
   private Swerve swerve;
   private Localizer localizer;
-  Supplier<Pose2d> poseSupplier;
+  private Supplier<Pose2d> poseSupplier;
 
   private PIDController pidX;
   private PIDController pidY;
