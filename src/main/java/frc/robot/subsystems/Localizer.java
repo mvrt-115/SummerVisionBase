@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.util.ConcurrentModificationException;
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
@@ -38,7 +39,9 @@ public class Localizer extends SubsystemBase {
 
   //"Field" for logging
   private Field2d field;
-  private double lastTime;
+
+  private double lastTimeSinceVisionUpdate;
+  private double timeBetweenUpdates = 0.1;
 
   /** Creates a new Localizer. */
   public Localizer(Swerve swerve) {
@@ -51,19 +54,10 @@ public class Localizer extends SubsystemBase {
 
     this.swerve = swerve;
     this.poseEstimator = swerve.getPoseEstimator();
-
-    lastTime = Timer.getFPGATimestamp();
   }
 
   @Override
   public void periodic() {
-
-      //Logs every 3s
-      if (Timer.getFPGATimestamp() >= lastTime + 1){
-        SmartDashboard.putNumber("Pingu - Time", lastTime);
-        lastTime = Timer.getFPGATimestamp();
-      }
-
       // This method will be called once per scheduler run
       var result = camera.getLatestResult();
 
@@ -76,16 +70,35 @@ public class Localizer extends SubsystemBase {
       if (rot != null && module_pos != null){
         poseEstimator.updateWithTime(result.getTimestampSeconds(), rot, module_pos);
       }
-      
-      //Update estimated position with addition of vision
-      if(result.getTargets().size()>0 && estimatedPoseVision.isPresent()){
-        SmartDashboard.putBoolean("Pingu - Has Targets", true);
-        poseEstimator.addVisionMeasurement(estimatedPoseVision.get().estimatedPose.toPose2d(), estimatedPoseVision.get().timestampSeconds);
-      
-      } else {
-        SmartDashboard.putBoolean("Pingu - Has Targets", false);
+
+      try {
+        if(result.hasTargets() && estimatedPoseVision.isPresent()){
+          SmartDashboard.putBoolean("Pingu - Has Targets", true);
+          poseEstimator.addVisionMeasurement(estimatedPoseVision.get().estimatedPose.toPose2d(), result.getTimestampSeconds());
+          lastTimeSinceVisionUpdate = Timer.getFPGATimestamp();
+
+        } else{
+          SmartDashboard.putBoolean("Pingu - Has Targets", false);
+        }
+      } catch (ConcurrentModificationException e){
+
       }
 
+      /**
+       * 
+      if(Math.abs(lastTimeSinceVisionUpdate - Timer.getFPGATimestamp()) > 0.5){
+        SmartDashboard.putBoolean("Pingu - Running vision update", true);
+        if(result.hasTargets() && estimatedPoseVision.isPresent()){
+          SmartDashboard.putBoolean("Pingu - Has Targets", true);
+          poseEstimator.addVisionMeasurement(estimatedPoseVision.get().estimatedPose.toPose2d(), result.getTimestampSeconds());
+          lastTimeSinceVisionUpdate = Timer.getFPGATimestamp();
+
+        } else{
+          SmartDashboard.putBoolean("Pingu - Has Targets", false);
+        }
+      }
+       */
+      
       Pose2d estimatedPos = poseEstimator.getEstimatedPosition();
       
       //Log this estimated position
