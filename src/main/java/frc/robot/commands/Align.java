@@ -64,7 +64,7 @@ public class Align extends Command {
 
     SwerveModuleState[] states = swerve.getKinematics().toSwerveModuleStates(speeds);
     var new_states = swerve.getKinematics().toSwerveModuleStates(speeds);
-    swerve.setModuleStates(states);
+    swerve.setModuleStates(new_states);
   }
 
   // Called once the command ends or is interrupted.

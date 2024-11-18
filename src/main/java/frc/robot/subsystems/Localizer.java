@@ -40,9 +40,6 @@ public class Localizer extends SubsystemBase {
   //"Field" for logging
   private Field2d field;
 
-  private double lastTimeSinceVisionUpdate;
-  private double timeBetweenUpdates = 0.1;
-
   /** Creates a new Localizer. */
   public Localizer(Swerve swerve) {
     this.camera = new PhotonCamera(Constants.VisionConstants.cameraName);
@@ -67,16 +64,16 @@ public class Localizer extends SubsystemBase {
       //Estimated position based on swerve kinematics
       Rotation2d rot = new Rotation2d(swerve.getYaw());
       SwerveModulePosition[] module_pos = swerve.getSwerveModulePositions();
-      if (rot != null && module_pos != null){
-        poseEstimator.updateWithTime(result.getTimestampSeconds(), rot, module_pos);
-      }
+
+      //TODO: Add null try-catch here (? issue)
+      //Updating pose estimation with odometry & angle
+      poseEstimator.updateWithTime(Timer.getFPGATimestamp(), rot, module_pos);
 
       try {
         if(result.hasTargets() && estimatedPoseVision.isPresent()){
           SmartDashboard.putBoolean("Pingu - Has Targets", true);
           poseEstimator.addVisionMeasurement(estimatedPoseVision.get().estimatedPose.toPose2d(), result.getTimestampSeconds());
-          lastTimeSinceVisionUpdate = Timer.getFPGATimestamp();
-
+          
         } else{
           SmartDashboard.putBoolean("Pingu - Has Targets", false);
         }
