@@ -6,6 +6,8 @@ package frc.robot.commands;
 
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -72,11 +74,27 @@ public class Align extends Command {
     double outX = pidX.calculate(robotPose.getX(), targetPose.getX()); // pos, setpoint
     double outY = pidY.calculate(robotPose.getY(), targetPose.getY());
     
-    ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(outX, outY, 0, new Rotation2d(-theta));
+    Supplier<SwerveRequest> swerveRequestSupplier = () -> {
+      // Calculate ChassisSpeeds dynamically
+      ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+          outX, outY, 0, new Rotation2d(-theta)
+      );
 
-    SwerveModuleState[] states = swerve.getKinematics().toSwerveModuleStates(speeds);
-    var new_states = swerve.getKinematics().toSwerveModuleStates(speeds);
-    swerve.setModuleStates(new_states);
+      SwerveRequest.ApplyChassisSpeeds request = new SwerveRequest.ApplyChassisSpeeds();
+      request.Speeds = speeds;
+
+      return request;
+      };
+
+
+    swerve.applyRequest(swerveRequestSupplier);
+  }
+
+
+
+  public SwerveRequest.ApplyChassisSpeeds getAlignRequest(){
+    SwerveRequest.ApplyChassisSpeeds request = new SwerveRequest.ApplyChassisSpeeds();
+
   }
 
   // Called once the command ends or is interrupted.
