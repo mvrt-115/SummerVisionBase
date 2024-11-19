@@ -6,18 +6,23 @@ package frc.robot.subsystems;
 
 import java.util.ConcurrentModificationException;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.RobotCentric;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -37,8 +42,16 @@ public class Localizer extends SubsystemBase {
   //Field layout (tag IDs on a map)
   private AprilTagFieldLayout fieldLayout;
 
+  //TODO: add STDs
+
   //"Field" for logging
   private Field2d field;
+
+  //For Align
+  private PIDController pidX;
+  private PIDController pidY;
+  private PIDController pidTheta;
+  //private Supplier<Pose2d> poseSupplier;
 
   /** Creates a new Localizer. */
   public Localizer(Swerve swerve) {
@@ -51,6 +64,11 @@ public class Localizer extends SubsystemBase {
 
     this.swerve = swerve;
     this.poseEstimator = swerve.getPoseEstimator();
+
+    //For Align
+    pidX = new PIDController(2.7, 0, 0.0);
+    pidY = new PIDController(2.7, 0, 0.0);
+    pidTheta = new PIDController(4, 0, 0);
   }
 
   @Override
@@ -80,21 +98,6 @@ public class Localizer extends SubsystemBase {
       } catch (ConcurrentModificationException e){
 
       }
-
-      /**
-       * 
-      if(Math.abs(lastTimeSinceVisionUpdate - Timer.getFPGATimestamp()) > 0.5){
-        SmartDashboard.putBoolean("Pingu - Running vision update", true);
-        if(result.hasTargets() && estimatedPoseVision.isPresent()){
-          SmartDashboard.putBoolean("Pingu - Has Targets", true);
-          poseEstimator.addVisionMeasurement(estimatedPoseVision.get().estimatedPose.toPose2d(), result.getTimestampSeconds());
-          lastTimeSinceVisionUpdate = Timer.getFPGATimestamp();
-
-        } else{
-          SmartDashboard.putBoolean("Pingu - Has Targets", false);
-        }
-      }
-       */
       
       Pose2d estimatedPos = poseEstimator.getEstimatedPosition();
       
@@ -102,6 +105,42 @@ public class Localizer extends SubsystemBase {
       field.setRobotPose(estimatedPos);
       SmartDashboard.putData("Pingu - Field", field); //Switch to advantagekit later
   }
+
+  /**
+   * Return command to run alignment
+   * @return
+   */
+   public RobotCentric getAlignCommand(){
+        Pose2d robotPose = getCurrentPose();
+        Pose2d targetPose = getAlignLoc();
+        double theta = robotPose.getRotation().getRadians();
+
+        SmartDashboard.putBoolean("Pingu ALIGN - Aligning", true);
+
+        SmartDashboard.putNumber("Pingu ALING - Robot Pose X", robotPose.getX());
+        SmartDashboard.putNumber("Pingu ALIGN - Robot Pose Y", robotPose.getY());
+
+        SmartDashboard.putNumber("Pingu ALIGN - Target Pose X", targetPose.getX());
+        SmartDashboard.putNumber("Pingu ALIGN - Target Pose Y", targetPose.getY());
+
+        SmartDashboard.putNumber("Pingu ALIGN - Error X", Math.abs(robotPose.getX() - targetPose.getX()));
+        SmartDashboard.putNumber("Pingu ALIGN - Error Y", Math.abs(robotPose.getY() - targetPose.getY()));
+
+        double outX = pidX.calculate(robotPose.getX(), targetPose.getX()); // pos, setpoint
+        double outY = pidY.calculate(robotPose.getY(), targetPose.getY());
+        
+        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(outX, outY, 0, new Rotation2d(-theta));
+
+        SmartDashboard.putNumber("Ping ALIGN Z - SPEEDS", speeds.vxMetersPerSecond);
+
+        //SmartDashboard.putNumber("Ping ALIGN X - SPEEDS", speeds.vxMetersPerSecond);
+        //SmartDashboard.putNumber("Ping ALIGN Y - SPEEDS", speeds.vyMetersPerSecond);
+        //SmartDashboard.putNumber("Ping ALIGN Theta - SPEEDS", speeds.omegaRadiansPerSecond);
+
+        return swerve.getRobotOriented().withVelocityX(speeds.vxMetersPerSecond)
+                    .withVelocityY(speeds.vyMetersPerSecond)
+                    .withRotationalRate(speeds.omegaRadiansPerSecond);
+    }
 
   /**
    * @return current pose according to pose estimator

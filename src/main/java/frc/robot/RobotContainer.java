@@ -29,11 +29,14 @@ public class RobotContainer {
                                               Constants.SwerveConstants.FrontRight, 
                                               Constants.SwerveConstants.BackLeft, 
                                               Constants.SwerveConstants.BackRight);
+                                              
 
   private final Telemetry logger = new Telemetry(drivetrain.MaxSpeed);
 
   //Vision localizer
   Localizer localizer;
+
+  Align alignCommand;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -52,16 +55,17 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
+     //VISION alignment
+    drivetrain.setDefaultCommand(drivetrain.applyRequest(() -> localizer.getAlignCommand()));
+
     //Reset Gyro
     driveJoystick.y().onTrue((new InstantCommand(() -> drivetrain.resetGyro())));
-    
-    driveJoystick.a().onTrue(new Align(drivetrain, localizer, localizer::getAlignLoc));
 
     //Toggles between field and robot oriented
-    driveJoystick.start().onTrue(new InstantCommand(() -> drivetrain.isFieldOriented = (!drivetrain.isFieldOriented)));
-    
+    driveJoystick.start().onTrue(new InstantCommand(() -> drivetrain.isFieldOriented = (!drivetrain.isFieldOriented))); 
+   
     //Drivetrain command
-    drivetrain.setDefaultCommand(drivetrain.applyRequest(() -> drivetrain.getSwerveCommand()));
+    //drivetrain.setDefaultCommand(drivetrain.applyRequest(() -> drivetrain.getSwerveCommand()));
 
     //Drivetrain logging
     drivetrain.registerTelemetry(logger::telemeterize);

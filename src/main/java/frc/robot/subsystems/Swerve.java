@@ -90,6 +90,14 @@ public class Swerve extends SwerveDrivetrain implements Subsystem {
     }
     
     /**
+     * For Vision
+     * @return robotOriented so that Localizer can have align command
+     */
+    public SwerveRequest.RobotCentric getRobotOriented(){
+        return robotOriented;
+    } 
+
+    /**
      * For Vision: Swerve Pose Estimator
      * @return the swerve pose estimator (made by Phoenix6)
      */
@@ -163,13 +171,6 @@ public class Swerve extends SwerveDrivetrain implements Subsystem {
 
     @Override
     public void periodic(){
-        //Logger.recordOutput("penguin yaw", getYaw());
-        //Logger.recordOutput("penguin joystick x", joystick.getLeftY());
-        //Logger.recordOutput("penguin joystick y", joystick.getLeftX());
-        //Logger.recordOutput("penguin chassis x velocities", getDesiredSpeeds(joystick.getLeftY(), joystick.getLeftX(), joystick.getRightX()).vxMetersPerSecond);
-        //Logger.recordOutput("penguin chassis y velocities", getDesiredSpeeds(joystick.getLeftY(), joystick.getLeftX(), joystick.getRightX()).vyMetersPerSecond);
-        //Logger.recordOutput("penguin chassis angle velocities", getDesiredSpeeds(joystick.getLeftY(), joystick.getLeftX(), joystick.getRightX()).omegaRadiansPerSecond);
-        //Logger.recordOutput("penguin FIELD ORIENTED", isFieldOriented);
         updateCurrentHeading(joystick.getRightX());
     }
 

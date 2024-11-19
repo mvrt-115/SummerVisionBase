@@ -7,6 +7,7 @@ package frc.robot.commands;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.RobotCentric;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.controller.PIDController;
@@ -16,6 +17,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.subsystems.Localizer;
 import frc.robot.subsystems.Swerve;
 
@@ -54,6 +56,8 @@ public class Align extends Command {
     targetPose = poseSupplier.get();
   }
 
+  
+
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
@@ -74,6 +78,8 @@ public class Align extends Command {
     double outX = pidX.calculate(robotPose.getX(), targetPose.getX()); // pos, setpoint
     double outY = pidY.calculate(robotPose.getY(), targetPose.getY());
     
+
+    //TODO: add to this a if aligning boolean, if not aligning return null/zero
     Supplier<SwerveRequest> swerveRequestSupplier = () -> {
       // Calculate ChassisSpeeds dynamically
       ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -88,19 +94,15 @@ public class Align extends Command {
 
 
     swerve.applyRequest(swerveRequestSupplier);
-  }
-
-
-
-  public SwerveRequest.ApplyChassisSpeeds getAlignRequest(){
-    SwerveRequest.ApplyChassisSpeeds request = new SwerveRequest.ApplyChassisSpeeds();
-
+    //or swerve.setControl
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     SmartDashboard.putBoolean("Pingu - Aligning", false);
+    //stop request, or set control back into joystick
+    //swerve.setControl(getAlignRequest());
   }
 
   // Returns true when the command should end.
