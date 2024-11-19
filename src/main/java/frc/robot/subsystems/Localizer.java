@@ -121,7 +121,7 @@ public class Localizer extends SubsystemBase {
    * @return location to use for alignment
    */
   public Pose2d getAlignLoc(){
-    Optional<Pose3d> tagPose = fieldLayout.getTagPose(4); //ID 4 for red speaker, ID 7 for blue speaker
+    Optional<Pose3d> tagPose = fieldLayout.getTagPose(7); //ID 4 for red speaker, ID 7 for blue speaker
     return tagPose.get().toPose2d();
   }
 }

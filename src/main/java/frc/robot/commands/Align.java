@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Localizer;
 import frc.robot.subsystems.Swerve;
@@ -57,6 +58,17 @@ public class Align extends Command {
     Pose2d robotPose = localizer.getCurrentPose();
     double theta = robotPose.getRotation().getRadians();
 
+    SmartDashboard.putBoolean("Pingu ALIGN - Aligning", true);
+
+    SmartDashboard.putNumber("Pingu ALING - Robot Pose X", robotPose.getX());
+    SmartDashboard.putNumber("Pingu ALIGN - Robot Pose Y", robotPose.getY());
+
+    SmartDashboard.putNumber("Pingu ALIGN - Target Pose X", targetPose.getX());
+    SmartDashboard.putNumber("Pingu ALIGN - Target Pose Y", targetPose.getY());
+
+    SmartDashboard.putNumber("Pingu ALIGN - Error X", Math.abs(robotPose.getX() - targetPose.getX()));
+    SmartDashboard.putNumber("Pingu ALIGN - Error Y", Math.abs(robotPose.getY() - targetPose.getY()));
+
     double outX = pidX.calculate(robotPose.getX(), targetPose.getX()); // pos, setpoint
     double outY = pidY.calculate(robotPose.getY(), targetPose.getY());
     
@@ -70,7 +82,7 @@ public class Align extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-
+    SmartDashboard.putBoolean("Pingu - Aligning", false);
   }
 
   // Returns true when the command should end.
